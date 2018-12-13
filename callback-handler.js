@@ -53,7 +53,11 @@ function createHandleAuthCallback({ authClient, callbackUrl, returnPath }) {
           { path: `${returnPath}/${organization}` }
         );
 
-        res.redirect(`${returnPath}/${organization}`);
+        const to = returnPath.endsWith("/")
+          ? `${returnPath}${organization}`
+          : `${returnPath}/${organization}`;
+
+        res.redirect(to);
       })
       .catch(err => res.status(500).send(err.stack));
   };
