@@ -24,6 +24,10 @@ function createHandleAuthCallback({ authClient, callbackUrl, returnPath }) {
 
     console.log("auth redirectUri", redirectUri);
 
+    const path = returnPath.endsWith("/")
+      ? `${returnPath}${organization}`
+      : `${returnPath}/${organization}`;
+
     authClient()
       .then(c =>
         c.authorizationCallback(redirectUri, req.query, {
@@ -50,14 +54,10 @@ function createHandleAuthCallback({ authClient, callbackUrl, returnPath }) {
             expires,
             idToken
           },
-          { path: `${returnPath}/${organization}` }
+          { path }
         );
 
-        const to = returnPath.endsWith("/")
-          ? `${returnPath}${organization}`
-          : `${returnPath}/${organization}`;
-
-        res.redirect(to);
+        res.redirect(path);
       })
       .catch(err => res.status(500).send(err.stack));
   };
