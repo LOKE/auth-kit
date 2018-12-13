@@ -38,7 +38,7 @@ function createHandleAuthCallback({ authClient, callbackUrl, returnPath }) {
           id_token: idToken,
           expires_at: expires
         } = tokenSet;
-
+        console.log("returnPath", returnPath);
         res.cookie(
           "loke",
           {
