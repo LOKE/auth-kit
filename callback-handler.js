@@ -1,23 +1,28 @@
 const express = require("express");
 const { parse: parseUrl } = require("url");
 
-module.exports = ({ authClient, returnPath = "/organization" }) => {
+module.exports = ({
+  authClient,
+  callbackUrl,
+  returnPath = "/organization"
+}) => {
   const router = express.Router();
-  router.get("/callback", createHandleAuthCallback(authClient, returnPath));
+  router.get(
+    "/callback",
+    createHandleAuthCallback({ authClient, callbackUrl, returnPath })
+  );
   return router;
 };
 
-function createHandleAuthCallback(authClient, returnPath) {
+function createHandleAuthCallback({ authClient, callbackUrl, returnPath }) {
   return async (req, res) => {
-    // Currrent URL
-    const pathName = parseUrl(req.originalUrl).pathname;
-    const redirectUri = req.protocol + "://" + req.get("host") + pathName;
+    const redirectUri = callbackUrl;
 
     const { state: expectedState, env, organization } = req.cookies[
       "loke-auth"
     ];
 
-    console.log('auth redirectUri', redirectUri);
+    console.log("auth redirectUri", redirectUri);
 
     authClient()
       .then(c =>

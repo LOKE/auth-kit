@@ -1,12 +1,20 @@
 const { ulid } = require("ulid");
+const url = require("url");
 
 const SCOPES = ["openid", "offline", "email"];
 
-module.exports = ({ authClient, callbackPath }) => {
+module.exports = ({ authClient, callbackUrl }) => {
   return (req, res, next) => {
-    const redirectUri = req.protocol + "://" + req.get("host") + callbackPath;
+    const redirectUri = callbackUrl;
 
-    console.log("loke-auth-middleware", req.method, req.originalUrl, req.params, req.query, req.cookies);
+    console.log(
+      "loke-auth-middleware",
+      req.method,
+      req.originalUrl,
+      req.params,
+      req.query,
+      req.cookies
+    );
 
     const { env, token, organization } = req.query;
     const { loke: cookie } = req.cookies;
@@ -20,7 +28,13 @@ module.exports = ({ authClient, callbackPath }) => {
         if (!organization) {
           return res.status(400).send("?organization={organization} required");
         }
-        return requestToken({ res, env, organization, redirectUri, authClient, callbackPath }).catch(next);
+        return requestToken({
+          res,
+          env,
+          organization,
+          redirectUri,
+          authClient
+        }).catch(next);
       }
     }
 
@@ -28,7 +42,13 @@ module.exports = ({ authClient, callbackPath }) => {
   };
 };
 
-async function requestToken({ res, env, organization, redirectUri, authClient, callbackPath }) {
+async function requestToken({
+  res,
+  env,
+  organization,
+  redirectUri,
+  authClient
+}) {
   console.log(
     "Redirecting to LOKE for authorization with organization " + organization
   );
@@ -36,7 +56,7 @@ async function requestToken({ res, env, organization, redirectUri, authClient, c
   res.cookie(
     "loke-auth",
     { state, env, organization },
-    { path: callbackPath }
+    { path: url.parse(redirectUri).path }
   );
 
   const client = await authClient();
@@ -45,7 +65,7 @@ async function requestToken({ res, env, organization, redirectUri, authClient, c
     scope: SCOPES.join(" "),
     prompt: "consent", // This lets the user select their org again
     state,
-    login_hint: `org=${organization},env=${env}`
+    login_hint: `org=${organization}` // ,env=${env}
   });
 
   console.log(`Redirecting to ${authUrl}`);
