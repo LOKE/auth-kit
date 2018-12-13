@@ -1,0 +1,24 @@
+{
+  "name": "@loke/auth-kit",
+  "version": "1.0.0",
+  "description": "LOKE Auth Kit",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LOKE/auth-kit.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LOKE/auth-kit/issues"
+  },
+  "homepage": "https://github.com/LOKE/auth-kit#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "openid-client": "^2.4.5",
+    "ulid": "^2.3.0"
+  }
+}
