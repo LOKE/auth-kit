@@ -16,10 +16,12 @@ module.exports = ({ authClient, callbackUrl }) => {
       req.cookies
     );
 
-    const { env, token, organization } = req.query;
     const { loke: cookie } = req.cookies;
 
-    if (!cookie) {
+    if (!cookie || tokenExpired(cookie)) {
+      // TODO: Get env and org from expired cookie?
+      const { env, token, organization } = req.query;
+
       if (!env) {
         return res.status(400).send("?env={env} required");
       }
@@ -70,4 +72,11 @@ async function requestToken({
 
   console.log(`Redirecting to ${authUrl}`);
   res.redirect(authUrl);
+}
+
+function tokenExpired(cookie) {
+  if (!cookie || !cookie.expires) return true;
+  const expiryDate = new Date(cookie.expires * 1000);
+  const nowDate = new Date();
+  return expiryDate <= nowDate;
 }
