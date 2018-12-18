@@ -7,37 +7,35 @@ module.exports = ({ authClient, callbackUrl }) => {
   return (req, res, next) => {
     const redirectUri = callbackUrl;
 
-    console.log(
-      "loke-auth-middleware",
-      req.method,
-      req.originalUrl,
-      req.params,
-      req.query,
-      req.cookies
-    );
+    // console.log(
+    //   "loke-auth-middleware",
+    //   req.method,
+    //   req.originalUrl,
+    //   req.params,
+    //   req.query,
+    //   req.cookies
+    // );
 
     const { loke: cookie } = req.cookies;
 
-    if (!cookie || tokenExpired(cookie)) {
-      // TODO: Get env and org from expired cookie?
-      const { env, token, organization } = req.query;
+    const token = req.query.token || cookie.token;
+    const env = req.query.env || cookie.env;
+    const organization = req.query.organization || cookie.organization;
 
-      if (!env) {
-        return res.status(400).send("?env={env} required");
+    if (!cookie || !token || tokenExpired(cookie)) {
+      if (!env || !organization) {
+        return res
+          .status(400)
+          .send("?env={env}&organization={organization} required");
       }
 
-      if (!token) {
-        if (!organization) {
-          return res.status(400).send("?organization={organization} required");
-        }
-        return requestToken({
-          res,
-          env,
-          organization,
-          redirectUri,
-          authClient
-        }).catch(next);
-      }
+      return requestToken({
+        res,
+        env,
+        organization,
+        redirectUri,
+        authClient
+      }).catch(next);
     }
 
     next();
