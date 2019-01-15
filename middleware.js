@@ -18,9 +18,10 @@ module.exports = ({ authClient, callbackUrl }) => {
 
     const { loke: cookie } = req.cookies;
 
-    const token = req.query.token || cookie.token;
-    const env = req.query.env || cookie.env;
-    const organization = req.query.organization || cookie.organization;
+    // Query string superceeds cookie
+    const token = req.query.token || cookie && cookie.token;
+    const env = req.query.env || cookie && cookie.env;
+    const organization = req.query.organization || cookie && cookie.organization;
 
     if (!cookie || !token || tokenExpired(cookie)) {
       if (!env || !organization) {
